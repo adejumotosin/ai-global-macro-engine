@@ -1,0 +1,68 @@
+{
+  "status": "completed",
+  "data_mode": "ALFRED point-in-time core macro series with decision-date-truncated market/rates data",
+  "coverage": {
+    "required": 183,
+    "available": 183,
+    "missing": [],
+    "complete": true
+  },
+  "months_available": 183,
+  "baseline_v1_point_in_time": {
+    "cagr": 0.055,
+    "annual_volatility": 0.0895,
+    "sharpe": 0.644,
+    "sortino": 0.997,
+    "max_drawdown": -0.176,
+    "calmar": 0.313,
+    "positive_months": 0.598,
+    "ending_growth_of_1": 2.079,
+    "average_monthly_turnover": 0.653
+  },
+  "carry_balanced_point_in_time": {
+    "cagr": 0.0652,
+    "annual_volatility": 0.089,
+    "sharpe": 0.756,
+    "sortino": 1.2,
+    "max_drawdown": -0.1843,
+    "calmar": 0.354,
+    "positive_months": 0.61,
+    "ending_growth_of_1": 2.372,
+    "average_monthly_turnover": 0.636
+  },
+  "benchmark_60_40": {
+    "cagr": 0.0944,
+    "annual_volatility": 0.091,
+    "sharpe": 1.04,
+    "sortino": 1.507,
+    "max_drawdown": -0.2051,
+    "calmar": 0.46,
+    "positive_months": 0.695,
+    "ending_growth_of_1": 3.431
+  },
+  "promotion": {
+    "promote": false,
+    "gates": {
+      "minimum_sharpe_lift": 0.1,
+      "maximum_drawdown_deterioration": 0.02,
+      "minimum_cagr_lift": 0.0,
+      "must_beat_60_40_sharpe": true,
+      "requires_complete_point_in_time_coverage": true
+    },
+    "checks": {
+      "sharpe_lift": true,
+      "drawdown": true,
+      "cagr": true,
+      "benchmark_sharpe": false
+    },
+    "observed": {
+      "sharpe_lift": 0.112,
+      "cagr_lift": 0.0102,
+      "drawdown_deterioration": 0.0083,
+      "challenger_vs_60_40_sharpe": -0.284
+    }
+  },
+  "production_action": "retain_v1",
+  "market_provider_errors": {},
+  "interpretation": "A challenger is eligible only if it clears every predeclared gate on point-in-time data. Failure to clear the gates keeps production on V1 regardless of revised-data performance."
+}

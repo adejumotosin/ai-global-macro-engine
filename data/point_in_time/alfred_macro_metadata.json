@@ -1,5 +1,5 @@
 {
-  "status": "partial",
+  "status": "complete",
   "mode": "ALFRED point-in-time core macro series plus decision-date-truncated market/rates series",
   "revision_sensitive_series": [
     "cpi",
@@ -9,18 +9,11 @@
     "fed_funds"
   ],
   "coverage": {
-    "required": 3,
-    "available": 2,
-    "missing": [
-      "2024-03-31"
-    ],
-    "complete": false
+    "required": 183,
+    "available": 183,
+    "missing": [],
+    "complete": true
   },
-  "errors": [
-    {
-      "decision_date": "2024-03-31",
-      "error": "No feature row produced for 2024-03-31"
-    }
-  ],
-  "note": "Each decision row is rebuilt using ALFRED values available on that month-end for revision-sensitive series. Vintage observation dates are preserved with an outer join; no future observations are introduced."
+  "errors": [],
+  "note": "Each decision row is rebuilt using ALFRED values available on that month-end for revision-sensitive series. Calendar month-ends that fall on non-trading days are represented by an empty index row only; values still come exclusively from observations dated on or before the decision date."
 }
