@@ -1,15 +1,14 @@
 from __future__ import annotations
 import json
 from pathlib import Path
-import pandas as pd
-from src.macrofund.backtest import run_backtest
-from src.macrofund.carry import build_carry_scores
-from src.macrofund.config import SETTINGS
-from src.macrofund.data import fetch_asset_prices, fetch_macro_bundle
-from src.macrofund.features import build_macro_features
-from src.macrofund.regime import expanding_regimes
-from src.macrofund.specs import BASE_SPEC, CANDIDATE_SPECS
-from src.macrofund.walkforward import run_walkforward_selection
+from macrofund.backtest import run_backtest
+from macrofund.carry import build_carry_scores
+from macrofund.config import SETTINGS
+from macrofund.data import fetch_asset_prices, fetch_macro_bundle
+from macrofund.features import build_macro_features
+from macrofund.regime import expanding_regimes
+from macrofund.specs import BASE_SPEC, CANDIDATE_SPECS
+from macrofund.walkforward import run_walkforward_selection
 
 OUT = Path("data/phase2/revised_data_benchmark.json")
 
