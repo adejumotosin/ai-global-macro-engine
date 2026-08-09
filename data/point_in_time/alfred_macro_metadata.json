@@ -1,0 +1,19 @@
+{
+  "status": "complete",
+  "mode": "ALFRED point-in-time core macro series plus decision-date-truncated market/rates series",
+  "revision_sensitive_series": [
+    "cpi",
+    "industrial_production",
+    "unemployment",
+    "financial_conditions",
+    "fed_funds"
+  ],
+  "coverage": {
+    "required": 183,
+    "available": 183,
+    "missing": [],
+    "complete": true
+  },
+  "errors": [],
+  "note": "Each decision row is rebuilt using ALFRED values available on that month-end for revision-sensitive series. Calendar month-ends that fall on non-trading days are represented by an empty index row only; values still come exclusively from observations dated on or before the decision date."
+}

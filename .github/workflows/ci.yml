@@ -3,6 +3,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -11,3 +12,6 @@ jobs:
           cache: pip
       - run: pip install -e '.[dev]'
       - run: pytest -q
+      - name: Phase 2 revised-data benchmark
+        if: github.event_name == 'pull_request' && github.head_ref == 'phase2-research'
+        run: python scripts/evaluate_phase2.py

@@ -1,0 +1,94 @@
+name: ALFRED point-in-time pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase2-research
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -e '.[dev]'
+      - name: Check ALFRED credential
+        id: credential
+        shell: bash
+        run: |
+          if [ -z "$FRED_API_KEY" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "FRED_API_KEY is not configured; ALFRED pilot was safely skipped."
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "FRED_API_KEY is configured."
+          fi
+      - name: Run three-date ALFRED pilot
+        id: pilot
+        if: steps.credential.outputs.available == 'true'
+        continue-on-error: true
+        run: python scripts/build_alfred_macro_history.py --decision-start 2024-01-31 --decision-end 2024-03-31 --max-dates 3 --sleep 0.05
+      - name: Validate pilot coverage
+        id: coverage
+        if: steps.credential.outputs.available == 'true' && steps.pilot.outcome == 'success'
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          meta = json.loads(Path('data/point_in_time/alfred_macro_metadata.json').read_text())
+          if meta.get('status') != 'complete' or not meta.get('coverage', {}).get('complete'):
+              raise SystemExit('Pilot coverage incomplete')
+          print('ALFRED_PILOT_COVERAGE_COMPLETE=true')
+          PY
+      - name: Write sanitized status
+        shell: bash
+        env:
+          KEY_AVAILABLE: ${{ steps.credential.outputs.available }}
+          PILOT_OUTCOME: ${{ steps.pilot.outcome }}
+          COVERAGE_OUTCOME: ${{ steps.coverage.outcome }}
+        run: |
+          mkdir -p data/workflow_status
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          key = os.getenv('KEY_AVAILABLE') == 'true'
+          pilot = os.getenv('PILOT_OUTCOME') or 'skipped'
+          coverage = os.getenv('COVERAGE_OUTCOME') or 'skipped'
+          complete = key and pilot == 'success' and coverage == 'success'
+          status = 'success' if complete else ('missing_fred_api_key' if not key else 'pilot_failed')
+          payload = {
+              'status': status,
+              'credential_configured': key,
+              'pilot_outcome': pilot,
+              'coverage_outcome': coverage,
+              'coverage_complete': complete,
+              'recorded_at': datetime.now(timezone.utc).isoformat(),
+              'secret_value_recorded': False,
+          }
+          Path('data/workflow_status/alfred_pilot_status.json').write_text(json.dumps(payload, indent=2))
+          PY
+      - name: Commit pilot evidence and status
+        run: |
+          git config user.name "macro-engine-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/workflow_status/alfred_pilot_status.json
+          if [ -f data/point_in_time/alfred_macro_features.csv ]; then git add data/point_in_time/alfred_macro_features.csv; fi
+          if [ -f data/point_in_time/alfred_macro_metadata.json ]; then git add data/point_in_time/alfred_macro_metadata.json; fi
+          git commit -m "data: record ALFRED pilot status" || true
+          git pull --rebase origin phase2-research
+          git push origin HEAD:phase2-research
+      - name: Fail unless configured pilot is complete
+        if: steps.credential.outputs.available == 'true' && (steps.pilot.outcome != 'success' || steps.coverage.outcome != 'success')
+        run: exit 1

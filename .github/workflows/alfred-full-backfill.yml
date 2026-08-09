@@ -1,0 +1,87 @@
+name: ALFRED full point-in-time backfill
+
+# Manual research workflow. NFCI vintage coverage used by the model is reliable
+# from 2011-05 onward, so the point-in-time panel begins there.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase2-research
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -e '.[dev]'
+      - name: Verify credential
+        run: |
+          if [ -z "$FRED_API_KEY" ]; then
+            echo "FRED_API_KEY is missing"
+            exit 2
+          fi
+          echo "FRED_API_KEY is configured"
+      - name: Build full point-in-time macro history
+        run: |
+          python scripts/build_alfred_macro_history.py \
+            --decision-start 2011-05-31 \
+            --decision-end 2026-07-31 \
+            --sleep 0.55
+      - name: Verify complete ALFRED coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          meta = json.loads(Path('data/point_in_time/alfred_macro_metadata.json').read_text())
+          print(json.dumps(meta, indent=2))
+          if meta.get('status') != 'complete' or not meta.get('coverage', {}).get('complete'):
+              raise SystemExit('ALFRED coverage incomplete')
+          PY
+      - name: Run point-in-time benchmark
+        run: python scripts/evaluate_point_in_time.py
+      - name: Write sanitized workflow status
+        if: always()
+        run: |
+          mkdir -p data/workflow_status
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          meta_path = Path('data/point_in_time/alfred_macro_metadata.json')
+          bench_path = Path('data/phase2/point_in_time_benchmark.json')
+          meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
+          bench = json.loads(bench_path.read_text()) if bench_path.exists() else {}
+          payload = {
+              'credential_configured': True,
+              'coverage_complete': bool(meta.get('coverage', {}).get('complete')),
+              'coverage': meta.get('coverage', {}),
+              'benchmark_status': bench.get('status', 'not_completed'),
+              'production_action': bench.get('production_action', 'not_decided'),
+              'recorded_at': datetime.now(timezone.utc).isoformat(),
+              'secret_value_recorded': False,
+          }
+          Path('data/workflow_status/alfred_full_backfill_status.json').write_text(json.dumps(payload, indent=2))
+          print(json.dumps(payload, indent=2))
+          PY
+      - name: Commit point-in-time evidence
+        if: always()
+        run: |
+          git config user.name "macro-engine-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/point_in_time/alfred_macro_features.csv || true
+          git add data/point_in_time/alfred_macro_metadata.json || true
+          git add data/phase2/point_in_time_benchmark.json || true
+          git add data/workflow_status/alfred_full_backfill_status.json || true
+          git commit -m "data: record full ALFRED point-in-time benchmark" || true
+          git pull --rebase origin phase2-research
+          git push origin HEAD:phase2-research

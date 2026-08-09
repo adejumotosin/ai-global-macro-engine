@@ -1,0 +1,14 @@
+{
+  "credential_configured": true,
+  "coverage_complete": true,
+  "coverage": {
+    "required": 183,
+    "available": 183,
+    "missing": [],
+    "complete": true
+  },
+  "benchmark_status": "completed",
+  "production_action": "retain_v1",
+  "recorded_at": "2026-08-09T19:41:22.874011+00:00",
+  "secret_value_recorded": false
+}
