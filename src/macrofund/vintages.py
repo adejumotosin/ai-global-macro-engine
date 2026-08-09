@@ -29,12 +29,7 @@ def fetch_series_as_of(
     api_key: str | None = None,
     timeout: int = 30,
 ) -> pd.Series:
-    """Return the observations that were actually available on ``as_of``.
-
-    This uses FRED/ALFRED real-time period parameters rather than current revised
-    values. It intentionally raises when an API key is absent so a point-in-time
-    backtest can never degrade into a revised-data backtest without notice.
-    """
+    """Return the observations that were actually available on ``as_of``."""
     key = get_fred_api_key(api_key)
     vintage = pd.Timestamp(as_of).strftime("%Y-%m-%d")
     response = requests.get(
@@ -73,7 +68,13 @@ def month_end_decision_dates(start: str, end: str | pd.Timestamp) -> pd.Datetime
 
 
 def revision_sensitive_names() -> tuple[str, ...]:
-    return ("cpi", "industrial_production", "unemployment")
+    return (
+        "cpi",
+        "industrial_production",
+        "unemployment",
+        "financial_conditions",
+        "fed_funds",
+    )
 
 
 def validate_vintage_coverage(
