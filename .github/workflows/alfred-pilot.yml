@@ -1,5 +1,6 @@
 name: ALFRED point-in-time pilot
 
+# Triggered after FRED_API_KEY configuration on 2026-08-09.
 on:
   workflow_dispatch:
   push:
