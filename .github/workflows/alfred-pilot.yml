@@ -1,12 +1,7 @@
 name: ALFRED point-in-time pilot
 
-# Triggered after FRED_API_KEY configuration on 2026-08-09.
 on:
   workflow_dispatch:
-  push:
-    branches: [phase2-research]
-    paths:
-      - ".github/workflows/alfred-pilot.yml"
 
 permissions:
   contents: write
@@ -43,33 +38,46 @@ jobs:
         if: steps.credential.outputs.available == 'true'
         continue-on-error: true
         run: python scripts/build_alfred_macro_history.py --decision-start 2024-01-31 --decision-end 2024-03-31 --max-dates 3 --sleep 0.05
+      - name: Validate pilot coverage
+        id: coverage
+        if: steps.credential.outputs.available == 'true' && steps.pilot.outcome == 'success'
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          meta = json.loads(Path('data/point_in_time/alfred_macro_metadata.json').read_text())
+          if meta.get('status') != 'complete' or not meta.get('coverage', {}).get('complete'):
+              raise SystemExit('Pilot coverage incomplete')
+          print('ALFRED_PILOT_COVERAGE_COMPLETE=true')
+          PY
       - name: Write sanitized status
         shell: bash
         env:
           KEY_AVAILABLE: ${{ steps.credential.outputs.available }}
           PILOT_OUTCOME: ${{ steps.pilot.outcome }}
+          COVERAGE_OUTCOME: ${{ steps.coverage.outcome }}
         run: |
           mkdir -p data/workflow_status
           python - <<'PY'
           import json, os
           from datetime import datetime, timezone
           from pathlib import Path
-          key = os.getenv("KEY_AVAILABLE") == "true"
-          outcome = os.getenv("PILOT_OUTCOME") or "skipped"
-          if not key:
-              status = "missing_fred_api_key"
-          elif outcome == "success":
-              status = "success"
-          else:
-              status = "pilot_failed"
+          key = os.getenv('KEY_AVAILABLE') == 'true'
+          pilot = os.getenv('PILOT_OUTCOME') or 'skipped'
+          coverage = os.getenv('COVERAGE_OUTCOME') or 'skipped'
+          complete = key and pilot == 'success' and coverage == 'success'
+          status = 'success' if complete else ('missing_fred_api_key' if not key else 'pilot_failed')
           payload = {
-              "status": status,
-              "credential_configured": key,
-              "pilot_outcome": outcome,
-              "recorded_at": datetime.now(timezone.utc).isoformat(),
-              "secret_value_recorded": False,
+              'status': status,
+              'credential_configured': key,
+              'pilot_outcome': pilot,
+              'coverage_outcome': coverage,
+              'coverage_complete': complete,
+              'recorded_at': datetime.now(timezone.utc).isoformat(),
+              'secret_value_recorded': False,
           }
-          Path("data/workflow_status/alfred_pilot_status.json").write_text(json.dumps(payload, indent=2))
+          Path('data/workflow_status/alfred_pilot_status.json').write_text(json.dumps(payload, indent=2))
           PY
       - name: Commit pilot evidence and status
         run: |
@@ -81,6 +89,6 @@ jobs:
           git commit -m "data: record ALFRED pilot status" || true
           git pull --rebase origin phase2-research
           git push origin HEAD:phase2-research
-      - name: Fail if configured pilot failed
-        if: steps.credential.outputs.available == 'true' && steps.pilot.outcome != 'success'
+      - name: Fail unless configured pilot is complete
+        if: steps.credential.outputs.available == 'true' && (steps.pilot.outcome != 'success' || steps.coverage.outcome != 'success')
         run: exit 1
