@@ -26,17 +26,24 @@ def _load_existing() -> pd.DataFrame:
     return frame.sort_index()
 
 
+def _replace_series_outer(raw: pd.DataFrame, name: str, vintage: pd.Series) -> pd.DataFrame:
+    """Replace one column while preserving every date present in the vintage."""
+    base = raw.drop(columns=[name], errors="ignore")
+    replacement = vintage.rename(name).to_frame()
+    return base.join(replacement, how="outer").sort_index()
+
+
 def _save(frame: pd.DataFrame, requested: pd.DatetimeIndex, errors: list[dict]) -> None:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     frame.sort_index().rename_axis("decision_date").reset_index().to_csv(OUT, index=False)
     coverage = validate_vintage_coverage(frame.index, requested)
     META.write_text(json.dumps({
         "status": "complete" if coverage["complete"] else "partial",
-        "mode": "ALFRED point-in-time core macro series plus truncated market/rates series",
+        "mode": "ALFRED point-in-time core macro series plus decision-date-truncated market/rates series",
         "revision_sensitive_series": list(revision_sensitive_names()),
         "coverage": coverage,
         "errors": errors[-50:],
-        "note": "Each row is rebuilt using values that were available on that month-end for the revision-sensitive core. Market-price and Treasury series are truncated to the decision date and are not substituted with future observations.",
+        "note": "Each decision row is rebuilt using ALFRED values available on that month-end for revision-sensitive series. Vintage observation dates are preserved with an outer join; no future observations are introduced.",
     }, indent=2))
 
 
@@ -65,9 +72,9 @@ def main() -> None:
             for name in revision_sensitive_names():
                 series_id = SETTINGS.macro_series[name]
                 vintage = fetch_series_as_of(series_id, date, start=SETTINGS.start_date)
-                raw[name] = vintage.reindex(raw.index)
+                raw = _replace_series_outer(raw, name, vintage)
                 time.sleep(args.sleep)
-            features = build_macro_features(raw)
+            features = build_macro_features(raw.loc[:date])
             row = features.reindex([date]).copy()
             if row.empty or row.iloc[0].isna().all():
                 raise RuntimeError(f"No feature row produced for {date.date()}")
