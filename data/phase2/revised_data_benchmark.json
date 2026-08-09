@@ -1,0 +1,104 @@
+{
+  "status": "completed",
+  "data_mode": "latest/revised FRED with publication lags",
+  "warning": "Research benchmark only. Final promotion requires ALFRED point-in-time validation.",
+  "months_available": 184,
+  "baseline_v1": {
+    "cagr": 0.0467,
+    "annual_volatility": 0.0912,
+    "sharpe": 0.546,
+    "sortino": 0.849,
+    "max_drawdown": -0.1854,
+    "calmar": 0.252,
+    "positive_months": 0.582,
+    "ending_growth_of_1": 1.872,
+    "average_monthly_turnover": 0.679
+  },
+  "benchmark_60_40": {
+    "cagr": 0.0944,
+    "annual_volatility": 0.0908,
+    "sharpe": 1.043,
+    "sortino": 1.506,
+    "max_drawdown": -0.2051,
+    "calmar": 0.46,
+    "positive_months": 0.697,
+    "ending_growth_of_1": 3.456
+  },
+  "static_candidates": {
+    "momentum_heavy": {
+      "cagr": 0.0583,
+      "annual_volatility": 0.1037,
+      "sharpe": 0.600,
+      "sortino": 0.871,
+      "max_drawdown": -0.1893,
+      "calmar": 0.308,
+      "positive_months": 0.606,
+      "ending_growth_of_1": 2.180,
+      "average_monthly_turnover": 0.675
+    },
+    "regime_heavy": {
+      "cagr": 0.0486,
+      "annual_volatility": 0.0895,
+      "sharpe": 0.576,
+      "sortino": 1.005,
+      "max_drawdown": -0.1821,
+      "calmar": 0.267,
+      "positive_months": 0.594,
+      "ending_growth_of_1": 1.921,
+      "average_monthly_turnover": 0.619
+    },
+    "carry_balanced": {
+      "cagr": 0.0546,
+      "annual_volatility": 0.0931,
+      "sharpe": 0.619,
+      "sortino": 0.944,
+      "max_drawdown": -0.1850,
+      "calmar": 0.295,
+      "positive_months": 0.588,
+      "ending_growth_of_1": 2.077,
+      "average_monthly_turnover": 0.649
+    }
+  },
+  "walkforward_phase2": {
+    "cagr": 0.0260,
+    "annual_volatility": 0.1000,
+    "sharpe": 0.307,
+    "sortino": 0.444,
+    "max_drawdown": -0.2079,
+    "calmar": 0.125,
+    "positive_months": 0.552,
+    "ending_growth_of_1": 1.252
+  },
+  "walkforward_selection_counts": {
+    "balanced": 33,
+    "regime_heavy": 24,
+    "momentum_heavy": 24,
+    "carry_balanced": 24
+  },
+  "promotion_on_revised_data": {
+    "promote": false,
+    "gates": {
+      "minimum_sharpe_lift": 0.10,
+      "maximum_drawdown_deterioration": 0.02,
+      "minimum_cagr_lift": 0.00,
+      "must_beat_60_40_sharpe": true
+    },
+    "checks": {
+      "sharpe_lift": false,
+      "drawdown": false,
+      "cagr": false,
+      "benchmark_sharpe": false
+    },
+    "observed": {
+      "sharpe_lift": -0.239,
+      "cagr_lift": -0.0207,
+      "drawdown_deterioration": 0.0225,
+      "challenger_vs_60_40_sharpe": -0.736
+    }
+  },
+  "production_action": "retain_v1",
+  "provider_errors": {
+    "macro": {},
+    "market": {}
+  }
+}
