@@ -1,8 +1,15 @@
 name: ALFRED full point-in-time backfill
 
 # NFCI vintage coverage used by the model is reliable from 2011-05 onward.
+# The push trigger below is a one-shot bootstrap so the connector can launch
+# the workflow after the rotated secret was configured. It will be removed
+# after this clean backfill finishes.
 on:
   workflow_dispatch:
+  push:
+    branches: [phase2-research]
+    paths:
+      - ".github/workflows/alfred-full-backfill.yml"
 
 permissions:
   contents: write
