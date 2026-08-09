@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -15,3 +15,20 @@ jobs:
       - name: Phase 2 revised-data benchmark
         if: github.event_name == 'pull_request' && github.head_ref == 'phase2-research'
         run: python scripts/evaluate_phase2.py
+      - name: Verify ALFRED credential
+        if: github.event_name == 'pull_request' && github.head_ref == 'phase2-research'
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          if [ -z "$FRED_API_KEY" ]; then
+            echo "ALFRED_CREDENTIAL_CONFIGURED=false"
+            exit 2
+          fi
+          echo "ALFRED_CREDENTIAL_CONFIGURED=true"
+      - name: Run ALFRED three-date point-in-time pilot
+        if: github.event_name == 'pull_request' && github.head_ref == 'phase2-research'
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          python scripts/build_alfred_macro_history.py --decision-start 2024-01-31 --decision-end 2024-03-31 --max-dates 3 --sleep 0.05
+          cat data/point_in_time/alfred_macro_metadata.json
