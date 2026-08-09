@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import time
 from typing import Iterable
 import pandas as pd
 import requests
@@ -22,43 +23,74 @@ def get_fred_api_key(explicit: str | None = None) -> str:
     return key
 
 
+def _retry_delay(response: requests.Response | None, attempt: int) -> float:
+    if response is not None:
+        raw = response.headers.get("Retry-After")
+        if raw:
+            try:
+                return min(max(float(raw), 1.0), 90.0)
+            except ValueError:
+                pass
+    return min(2.0 ** attempt, 60.0)
+
+
 def fetch_series_as_of(
     series_id: str,
     as_of: str | pd.Timestamp,
     start: str = "2000-01-01",
     api_key: str | None = None,
     timeout: int = 30,
+    max_attempts: int = 7,
 ) -> pd.Series:
-    """Return observations that were available on ``as_of`` without leaking credentials."""
+    """Return observations available on ``as_of`` with safe rate-limit retries."""
     key = get_fred_api_key(api_key)
     vintage = pd.Timestamp(as_of).strftime("%Y-%m-%d")
-    try:
-        response = requests.get(
-            FRED_OBSERVATIONS,
-            params={
-                "series_id": series_id,
-                "api_key": key,
-                "file_type": "json",
-                "realtime_start": vintage,
-                "realtime_end": vintage,
-                "observation_start": start,
-                "observation_end": vintage,
-                "output_type": 1,
-                "limit": 100000,
-            },
-            headers={"User-Agent": "MacroFundAI/0.2 point-in-time-research"},
-            timeout=timeout,
-        )
-    except requests.RequestException as exc:
-        raise VintageDataError(
-            f"ALFRED transport failure for {series_id} as of {vintage}: {type(exc).__name__}"
-        ) from None
-    if not response.ok:
-        # Never propagate Response.url or the raw requests exception because the
-        # v1 endpoint carries the API key in its query string.
+    params = {
+        "series_id": series_id,
+        "api_key": key,
+        "file_type": "json",
+        "realtime_start": vintage,
+        "realtime_end": vintage,
+        "observation_start": start,
+        "observation_end": vintage,
+        "output_type": 1,
+        "limit": 100000,
+    }
+
+    response: requests.Response | None = None
+    for attempt in range(max_attempts):
+        try:
+            response = requests.get(
+                FRED_OBSERVATIONS,
+                params=params,
+                headers={"User-Agent": "MacroFundAI/0.2 point-in-time-research"},
+                timeout=timeout,
+            )
+        except requests.RequestException as exc:
+            if attempt + 1 >= max_attempts:
+                raise VintageDataError(
+                    f"ALFRED transport failure for {series_id} as of {vintage}: {type(exc).__name__}"
+                ) from None
+            time.sleep(_retry_delay(None, attempt))
+            continue
+
+        if response.ok:
+            break
+        if response.status_code == 429 or 500 <= response.status_code < 600:
+            if attempt + 1 >= max_attempts:
+                raise VintageDataError(
+                    f"ALFRED request failed for {series_id} as of {vintage}: HTTP {response.status_code} after {max_attempts} attempts"
+                )
+            time.sleep(_retry_delay(response, attempt))
+            continue
+        # Never propagate Response.url or the raw requests exception because
+        # the v1 endpoint carries the API key in its query string.
         raise VintageDataError(
             f"ALFRED request failed for {series_id} as of {vintage}: HTTP {response.status_code}"
         )
+    else:
+        raise VintageDataError(f"ALFRED request exhausted retries for {series_id} as of {vintage}")
+
     try:
         payload = response.json()
     except ValueError:
