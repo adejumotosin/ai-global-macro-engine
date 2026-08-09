@@ -3,26 +3,34 @@ import numpy as np
 import pandas as pd
 
 
+def _series(frame: pd.DataFrame, name: str) -> pd.Series:
+    if name not in frame:
+        return pd.Series(np.nan, index=frame.index, dtype=float)
+    return pd.to_numeric(frame[name], errors="coerce").reindex(frame.index)
+
+
 def build_carry_scores(macro_features: pd.DataFrame, symbols: list[str] | pd.Index) -> pd.DataFrame:
-    """Build simple, transparent ex-ante carry proxies.
+    """Build transparent ex-ante carry proxies from rates available at decision time.
 
-    The MVP only applies carry where the macro inputs have a defensible mapping:
-    - TLT: 10y Treasury yield minus policy rate
-    - IEF: 5y Treasury yield minus policy rate, falling back to 10y when 5y is absent
+    The first production candidate deliberately applies carry only where the
+    mapping is defensible with the existing data:
+    - TLT: 10-year Treasury yield minus the policy rate.
+    - IEF: 5-year Treasury yield minus the policy rate.
 
-    Other assets remain zero until proper FX-rate differentials and commodity
-    futures curves are added. Values are cross-sectionally bounded before use.
+    Other assets stay at zero until proper FX interest differentials and
+    commodity futures curves are added. This avoids inventing carry from ETF
+    price momentum.
     """
     idx = macro_features.index
     out = pd.DataFrame(0.0, index=idx, columns=list(symbols), dtype=float)
-    policy = pd.to_numeric(macro_features.get("fed_funds"), errors="coerce")
-    ten = pd.to_numeric(macro_features.get("treasury_10y"), errors="coerce")
-    five = pd.to_numeric(macro_features.get("treasury_5y"), errors="coerce")
-    if five is None or getattr(five, "isna", lambda: pd.Series([True]))().all():
+    policy = _series(macro_features, "fed_funds")
+    ten = _series(macro_features, "treasury_10y")
+    five = _series(macro_features, "treasury_5y")
+    if five.isna().all():
         five = ten
 
-    if "TLT" in out:
+    if "TLT" in out.columns:
         out["TLT"] = ((ten - policy) / 4.0).clip(-1.5, 1.5).fillna(0.0)
-    if "IEF" in out:
+    if "IEF" in out.columns:
         out["IEF"] = ((five - policy) / 4.0).clip(-1.5, 1.5).fillna(0.0)
     return out.replace([np.inf, -np.inf], 0.0).fillna(0.0)
