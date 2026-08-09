@@ -33,6 +33,19 @@ def _replace_series_outer(raw: pd.DataFrame, name: str, vintage: pd.Series) -> p
     return base.join(replacement, how="outer").sort_index()
 
 
+def _force_decision_date(raw: pd.DataFrame, decision_date: pd.Timestamp) -> pd.DataFrame:
+    """Extend the raw index to the calendar decision date without adding data.
+
+    Month-end can fall on a weekend or holiday. Adding an all-NaN row forces the
+    monthly resampling grid to include that calendar month while every value still
+    comes from observations dated on or before the decision date.
+    """
+    date = pd.Timestamp(decision_date)
+    if date not in raw.index:
+        raw = raw.reindex(raw.index.union(pd.DatetimeIndex([date]))).sort_index()
+    return raw
+
+
 def _save(frame: pd.DataFrame, requested: pd.DatetimeIndex, errors: list[dict]) -> None:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     frame.sort_index().rename_axis("decision_date").reset_index().to_csv(OUT, index=False)
@@ -43,7 +56,7 @@ def _save(frame: pd.DataFrame, requested: pd.DatetimeIndex, errors: list[dict]) 
         "revision_sensitive_series": list(revision_sensitive_names()),
         "coverage": coverage,
         "errors": errors[-50:],
-        "note": "Each decision row is rebuilt using ALFRED values available on that month-end for revision-sensitive series. Vintage observation dates are preserved with an outer join; no future observations are introduced.",
+        "note": "Each decision row is rebuilt using ALFRED values available on that month-end for revision-sensitive series. Calendar month-ends that fall on non-trading days are represented by an empty index row only; values still come exclusively from observations dated on or before the decision date.",
     }, indent=2))
 
 
@@ -74,7 +87,8 @@ def main() -> None:
                 vintage = fetch_series_as_of(series_id, date, start=SETTINGS.start_date)
                 raw = _replace_series_outer(raw, name, vintage)
                 time.sleep(args.sleep)
-            features = build_macro_features(raw.loc[:date])
+            raw = _force_decision_date(raw.loc[:date], date)
+            features = build_macro_features(raw)
             row = features.reindex([date]).copy()
             if row.empty or row.iloc[0].isna().all():
                 raise RuntimeError(f"No feature row produced for {date.date()}")
