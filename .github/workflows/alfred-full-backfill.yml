@@ -1,5 +1,6 @@
 name: ALFRED full point-in-time backfill
 
+# NFCI vintage coverage used by the model is reliable from 2011-05 onward.
 on:
   workflow_dispatch:
   push:
@@ -36,7 +37,7 @@ jobs:
       - name: Build full point-in-time macro history
         run: |
           python scripts/build_alfred_macro_history.py \
-            --decision-start 2010-01-31 \
+            --decision-start 2011-05-31 \
             --decision-end 2026-07-31 \
             --sleep 0.55
       - name: Verify complete ALFRED coverage
