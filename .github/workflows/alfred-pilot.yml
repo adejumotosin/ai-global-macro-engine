@@ -38,14 +38,48 @@ jobs:
             echo "FRED_API_KEY is configured."
           fi
       - name: Run three-date ALFRED pilot
+        id: pilot
         if: steps.credential.outputs.available == 'true'
+        continue-on-error: true
         run: python scripts/build_alfred_macro_history.py --decision-start 2024-01-31 --decision-end 2024-03-31 --max-dates 3 --sleep 0.05
-      - name: Commit pilot evidence
-        if: steps.credential.outputs.available == 'true'
+      - name: Write sanitized status
+        shell: bash
+        env:
+          KEY_AVAILABLE: ${{ steps.credential.outputs.available }}
+          PILOT_OUTCOME: ${{ steps.pilot.outcome }}
+        run: |
+          mkdir -p data/workflow_status
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          key = os.getenv("KEY_AVAILABLE") == "true"
+          outcome = os.getenv("PILOT_OUTCOME") or "skipped"
+          if not key:
+              status = "missing_fred_api_key"
+          elif outcome == "success":
+              status = "success"
+          else:
+              status = "pilot_failed"
+          payload = {
+              "status": status,
+              "credential_configured": key,
+              "pilot_outcome": outcome,
+              "recorded_at": datetime.now(timezone.utc).isoformat(),
+              "secret_value_recorded": False,
+          }
+          Path("data/workflow_status/alfred_pilot_status.json").write_text(json.dumps(payload, indent=2))
+          PY
+      - name: Commit pilot evidence and status
         run: |
           git config user.name "macro-engine-bot"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/point_in_time/alfred_macro_features.csv data/point_in_time/alfred_macro_metadata.json
-          git commit -m "data: record ALFRED point-in-time pilot" || true
+          git add data/workflow_status/alfred_pilot_status.json
+          if [ -f data/point_in_time/alfred_macro_features.csv ]; then git add data/point_in_time/alfred_macro_features.csv; fi
+          if [ -f data/point_in_time/alfred_macro_metadata.json ]; then git add data/point_in_time/alfred_macro_metadata.json; fi
+          git commit -m "data: record ALFRED pilot status" || true
           git pull --rebase origin phase2-research
           git push origin HEAD:phase2-research
+      - name: Fail if configured pilot failed
+        if: steps.credential.outputs.available == 'true' && steps.pilot.outcome != 'success'
+        run: exit 1
