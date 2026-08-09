@@ -29,27 +29,42 @@ def fetch_series_as_of(
     api_key: str | None = None,
     timeout: int = 30,
 ) -> pd.Series:
-    """Return the observations that were actually available on ``as_of``."""
+    """Return observations that were available on ``as_of`` without leaking credentials."""
     key = get_fred_api_key(api_key)
     vintage = pd.Timestamp(as_of).strftime("%Y-%m-%d")
-    response = requests.get(
-        FRED_OBSERVATIONS,
-        params={
-            "series_id": series_id,
-            "api_key": key,
-            "file_type": "json",
-            "realtime_start": vintage,
-            "realtime_end": vintage,
-            "observation_start": start,
-            "observation_end": vintage,
-            "output_type": 1,
-            "limit": 100000,
-        },
-        headers={"User-Agent": "MacroFundAI/0.2 point-in-time-research"},
-        timeout=timeout,
-    )
-    response.raise_for_status()
-    payload = response.json()
+    try:
+        response = requests.get(
+            FRED_OBSERVATIONS,
+            params={
+                "series_id": series_id,
+                "api_key": key,
+                "file_type": "json",
+                "realtime_start": vintage,
+                "realtime_end": vintage,
+                "observation_start": start,
+                "observation_end": vintage,
+                "output_type": 1,
+                "limit": 100000,
+            },
+            headers={"User-Agent": "MacroFundAI/0.2 point-in-time-research"},
+            timeout=timeout,
+        )
+    except requests.RequestException as exc:
+        raise VintageDataError(
+            f"ALFRED transport failure for {series_id} as of {vintage}: {type(exc).__name__}"
+        ) from None
+    if not response.ok:
+        # Never propagate Response.url or the raw requests exception because the
+        # v1 endpoint carries the API key in its query string.
+        raise VintageDataError(
+            f"ALFRED request failed for {series_id} as of {vintage}: HTTP {response.status_code}"
+        )
+    try:
+        payload = response.json()
+    except ValueError:
+        raise VintageDataError(
+            f"ALFRED returned non-JSON data for {series_id} as of {vintage}"
+        ) from None
     observations = payload.get("observations") or []
     if not observations:
         raise VintageDataError(f"No ALFRED observations for {series_id} as of {vintage}")
