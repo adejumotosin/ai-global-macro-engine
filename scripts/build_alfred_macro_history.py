@@ -4,10 +4,10 @@ import json
 import time
 from pathlib import Path
 import pandas as pd
-from src.macrofund.config import SETTINGS
-from src.macrofund.data import fetch_macro_bundle
-from src.macrofund.features import build_macro_features
-from src.macrofund.vintages import (
+from macrofund.config import SETTINGS
+from macrofund.data import fetch_macro_bundle
+from macrofund.features import build_macro_features
+from macrofund.vintages import (
     fetch_series_as_of,
     get_fred_api_key,
     month_end_decision_dates,
@@ -48,7 +48,7 @@ def main() -> None:
     parser.add_argument("--max-dates", type=int, default=0, help="0 means all dates")
     args = parser.parse_args()
 
-    get_fred_api_key()  # fail before downloading anything when the secret is absent
+    get_fred_api_key()
     requested = month_end_decision_dates(args.decision_start, args.decision_end)
     if args.max_dates > 0:
         requested = requested[: args.max_dates]
