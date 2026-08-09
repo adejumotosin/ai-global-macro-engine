@@ -16,338 +16,179 @@ DASHBOARD = '''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#151916">
+<meta name="description" content="AI Global Macro Hedge Fund Engine, a systematic cross-asset macro research platform.">
 <title>AI Global Macro Hedge Fund Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,100..900&family=Manrope:wght@300..800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#05070a;
-  --bg-soft:#080c11;
-  --panel:#0b1016;
-  --panel-2:#0e151d;
-  --line:#1a2531;
-  --line-soft:#121b24;
-  --text:#f3f6f8;
-  --text-2:#c7d0d8;
-  --muted:#778594;
-  --muted-2:#52606d;
-  --green:#73efbb;
-  --green-soft:rgba(115,239,187,.10);
-  --red:#ff7080;
-  --red-soft:rgba(255,112,128,.10);
-  --amber:#f3c96b;
-  --blue:#79adff;
-  --shadow:0 22px 70px rgba(0,0,0,.28);
+  --ink:#151916;
+  --ink-2:#202621;
+  --paper:#f6f4ed;
+  --paper-2:#efede5;
+  --stone:#e7e4da;
+  --line:rgba(21,25,22,.14);
+  --line-dark:rgba(255,255,255,.15);
+  --sage:#3f725c;
+  --sage-dark:#2c5646;
+  --sage-soft:#c8d8cf;
+  --mint:#92bba7;
+  --red:#a6534c;
+  --white:#fffdf7;
+  --muted:#777c76;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  margin:0;
-  min-height:100vh;
-  color:var(--text);
-  background:
-    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),
-    radial-gradient(circle at 78% -10%,rgba(115,239,187,.075),transparent 31%),
-    radial-gradient(circle at 8% 0%,rgba(121,173,255,.045),transparent 24%),
-    var(--bg);
-  background-size:48px 48px,48px 48px,auto,auto,auto;
-  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  font-size:14px;
-  -webkit-font-smoothing:antialiased;
-}
-button,a{font:inherit}
-a{color:inherit}
-.shell{max-width:1460px;margin:0 auto;padding:0 28px 72px}
-.topbar{
-  height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid var(--line-soft);
-}
-.brand-wrap{display:flex;align-items:center;gap:13px}
-.mark{
-  width:34px;height:34px;border:1px solid #263441;border-radius:9px;
-  display:grid;place-items:center;background:linear-gradient(145deg,#101821,#090d12);
-  color:var(--green);font:800 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
-  letter-spacing:.03em;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)
-}
-.brand{font-weight:720;letter-spacing:-.015em;font-size:14px}
-.brand-sub{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.06em;text-transform:uppercase}
-.nav{display:flex;align-items:center;gap:6px}
-.nav a,.refresh{
-  border:1px solid transparent;background:transparent;color:var(--muted);
-  text-decoration:none;padding:8px 11px;border-radius:8px;cursor:pointer;transition:.16s ease;
-}
-.nav a:hover,.refresh:hover{color:var(--text-2);border-color:var(--line);background:#0b1117}
-.status-pill{
-  margin-left:10px;display:flex;align-items:center;gap:7px;padding:7px 10px;
-  border:1px solid #1d312b;border-radius:999px;background:rgba(115,239,187,.045);
-  color:#9ee9ca;font:650 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase
-}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(115,239,187,.08),0 0 14px rgba(115,239,187,.65)}
-.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(330px,.65fr);gap:16px;padding:30px 0 16px}
-.hero-main,.regime-card,.panel,.metric-card{
-  border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.005));
-  box-shadow:var(--shadow)
-}
-.hero-main{min-height:272px;border-radius:16px;padding:32px 34px;position:relative;overflow:hidden}
-.hero-main:after{
-  content:"";position:absolute;width:360px;height:360px;border-radius:50%;right:-180px;top:-210px;
-  border:1px solid rgba(115,239,187,.09);box-shadow:0 0 0 52px rgba(115,239,187,.015),0 0 0 104px rgba(115,239,187,.01)
-}
-.kicker{color:var(--green);font:700 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.15em;text-transform:uppercase}
-h1{font-size:clamp(37px,4.6vw,65px);line-height:.98;letter-spacing:-.055em;margin:23px 0 19px;max-width:880px;font-weight:720}
-.hero-copy{max-width:760px;color:#9aa8b5;font-size:14px;line-height:1.75}
-.hero-meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:26px;color:var(--muted);font:600 10px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.07em}
-.hero-meta strong{color:var(--text-2);font-weight:650}
-.regime-card{border-radius:16px;padding:25px;display:flex;flex-direction:column;justify-content:space-between;min-height:272px;position:relative;overflow:hidden}
-.regime-card:before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,var(--green),transparent 70%)}
-.label{font:650 9px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.105em;text-transform:uppercase;color:var(--muted)}
-.regime{font-size:38px;font-weight:760;letter-spacing:-.045em;margin:8px 0 4px;color:var(--green)}
-.regime-date{color:var(--muted);font:500 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
-.confidence{margin-top:25px}
-.conf-head{display:flex;justify-content:space-between;gap:20px;margin-bottom:9px;color:var(--text-2);font-size:11px}
-.track{height:5px;background:#121b23;border-radius:999px;overflow:hidden}
-.fill{height:100%;background:linear-gradient(90deg,#38ca91,var(--green));border-radius:999px;box-shadow:0 0 14px rgba(115,239,187,.25)}
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 16px}
-.metric-card{border-radius:12px;padding:17px 18px;box-shadow:none}
-.metric-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
-.metric-dot{width:5px;height:5px;border-radius:50%;background:#43515f}
-.metric-value{font:650 25px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-.04em;margin-top:14px}
-.metric-caption{font-size:10px;color:var(--muted-2);margin-top:8px}
-.pulse{height:2px;margin-top:14px;background:#131d26;position:relative;overflow:hidden}
-.pulse span{position:absolute;top:0;bottom:0;left:50%;background:var(--blue)}
-.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.72fr);gap:16px;margin-bottom:16px}
-.panel{border-radius:14px;padding:20px;box-shadow:none;overflow:hidden}
-.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
-.panel-title{font-size:14px;font-weight:680;letter-spacing:-.01em}
-.panel-sub{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.45}
-.panel-tag{white-space:nowrap;border:1px solid var(--line);padding:6px 8px;border-radius:7px;color:var(--muted);font:600 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em}
-.table-wrap{overflow-x:auto;margin:0 -2px}
-table{width:100%;border-collapse:collapse;min-width:680px}
-th{font:600 9px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;text-align:right;padding:10px 10px;border-bottom:1px solid var(--line)}
-td{padding:13px 10px;border-bottom:1px solid var(--line-soft);text-align:right;color:#c8d1d9;font:500 11px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace}
-th:first-child,td:first-child{text-align:left;padding-left:4px}
-tbody tr:last-child td{border-bottom:0}
-tbody tr:hover{background:rgba(255,255,255,.012)}
-.asset-cell{display:flex;align-items:center;gap:10px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.asset-icon{width:28px;height:28px;border:1px solid #1c2b36;border-radius:7px;background:#0d151d;display:grid;place-items:center;font:700 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#9daeba}
-.asset-symbol{font-size:12px;color:var(--text);font-weight:700}
-.asset-name{font-size:9px;color:var(--muted);margin-top:2px}
-.view{display:inline-flex;align-items:center;gap:5px;font:700 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;text-transform:uppercase}
-.view:before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
-.long{color:var(--green)}.short{color:var(--red)}.neutral{color:var(--muted)}
-.positive{color:var(--green)}.negative{color:var(--red)}
-.exposure-list{display:flex;flex-direction:column;gap:15px}
-.exposure-row{display:grid;grid-template-columns:48px 1fr 60px;gap:10px;align-items:center}
-.exposure-symbol{font:650 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#b7c2cb}
-.exposure-track{height:5px;background:#121b23;border-radius:999px;position:relative;overflow:hidden}
-.exposure-track:after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:#2b3946}
-.exposure-bar{height:100%;position:absolute;top:0;border-radius:999px}
-.exposure-bar.longbar{left:50%;background:var(--green)}
-.exposure-bar.shortbar{right:50%;background:var(--red)}
-.exposure-value{text-align:right;font:600 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace}
-.exposure-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:21px;padding-top:17px;border-top:1px solid var(--line)}
-.mini-stat{padding:10px 11px;border:1px solid var(--line-soft);border-radius:8px;background:#090e13}
-.mini-stat .v{font:650 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:6px;color:var(--text-2)}
-.performance{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
-.performance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.perf-card{border:1px solid var(--line-soft);border-radius:9px;padding:12px;background:#080d12}
-.perf-card .v{font:650 18px/1 ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:10px}
-.benchmark-row{display:grid;grid-template-columns:1fr 82px 82px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:11px}
-.benchmark-row:last-child{border-bottom:0}
-.benchmark-row .name{color:var(--text-2)}
-.benchmark-row .num{text-align:right;font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace}
-.memo{white-space:pre-wrap;margin:0;color:#aebbc5;font:500 11px/1.82 ui-monospace,SFMono-Regular,Menlo,monospace}
-.data-note{margin-top:13px;padding-top:13px;border-top:1px solid var(--line-soft);display:flex;gap:10px;align-items:flex-start;color:var(--muted-2);font-size:9px;line-height:1.6}
-.loading{border:1px solid var(--line);border-radius:14px;padding:25px;background:var(--panel);color:var(--muted);font:500 11px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}
-.loading-line{height:8px;border-radius:5px;background:linear-gradient(90deg,#101821,#17212b,#101821);background-size:200% 100%;animation:shimmer 1.4s infinite;margin:10px 0;max-width:580px}
-@keyframes shimmer{to{background-position:-200% 0}}
-.error{border:1px solid rgba(255,112,128,.35);background:var(--red-soft);color:#ffc3ca;padding:18px;border-radius:12px;font-size:12px;line-height:1.65}
-.footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-top:20px;color:var(--muted-2);font:500 9px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.06em}
-@media(max-width:980px){.hero,.dashboard-grid,.performance{grid-template-columns:1fr}.performance-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.shell{padding:0 14px 48px}.topbar{height:auto;padding:15px 0;gap:14px}.brand-sub{display:none}.nav a{display:none}.status-pill{margin-left:0}.hero{padding-top:16px}.hero-main,.regime-card{min-height:auto}.hero-main{padding:24px}.metrics{grid-template-columns:repeat(2,1fr)}.performance-grid{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}}
-@media(max-width:460px){.metrics,.performance-grid{grid-template-columns:1fr}.nav{gap:2px}.refresh{padding:8px}.status-pill{font-size:8px}.hero-main{padding:22px 19px}h1{font-size:40px}.regime{font-size:32px}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Manrope','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,a{font:inherit;color:inherit}button{cursor:pointer}
+::selection{background:var(--sage);color:#fff}
+.presentation-shell{min-height:100vh;overflow:clip}
+.topbar{position:fixed;z-index:80;top:0;left:0;right:0;height:62px;display:grid;grid-template-columns:260px 1fr auto;align-items:center;gap:20px;padding:0 24px;background:rgba(246,244,237,.9);backdrop-filter:blur(18px);border-bottom:1px solid rgba(21,25,22,.1)}
+.brand-mark{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:0;font-size:10px;letter-spacing:.12em;font-weight:800;text-transform:uppercase}
+.brand-block{width:17px;height:17px;display:inline-block;background:var(--sage);position:relative}.brand-block:after{content:'';position:absolute;width:7px;height:7px;right:-4px;top:-4px;border:1px solid var(--ink)}
+.nav-links{display:flex;align-items:center;justify-content:center;gap:2px;overflow-x:auto;scrollbar-width:none}.nav-links::-webkit-scrollbar{display:none}
+.nav-links button{white-space:nowrap;border:0;background:transparent;padding:9px 8px;font-size:9px;text-transform:uppercase;letter-spacing:.09em;opacity:.44;transition:.2s}.nav-links button:hover,.nav-links button.active{opacity:1}.nav-links button.active{color:var(--sage);font-weight:800}
+.top-actions{display:flex;gap:7px;align-items:center}.icon-action,.refresh-action{height:34px;border:1px solid rgba(21,25,22,.15);background:rgba(255,255,255,.38);display:grid;place-items:center;transition:.2s}.icon-action{width:34px}.refresh-action{padding:0 12px;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}.icon-action:hover,.refresh-action:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.live-dot{display:flex;align-items:center;gap:6px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--sage);font-weight:800;margin-left:5px}.live-dot i{display:block;width:6px;height:6px;border-radius:50%;background:var(--sage);box-shadow:0 0 0 4px rgba(63,114,92,.09)}
+.slide{min-height:100vh;position:relative;scroll-margin-top:0;display:flex;align-items:center;overflow:hidden}
+.slide-inner{width:min(1240px,calc(100% - 96px));margin:0 auto;padding:104px 0 78px;position:relative;z-index:2}
+.light-slide{background:var(--paper)}.stone-slide{background:var(--stone)}.dark-slide{background:var(--ink);color:var(--white)}.sage-slide{background:var(--sage-dark);color:var(--white)}
+.eyebrow{display:inline-flex;font-size:9px;line-height:1;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--sage);margin-bottom:20px}.eyebrow-dark{color:#b8d1c4}
+.section-heading{max-width:980px;margin-bottom:44px}.section-heading h2{font-family:'Archivo',sans-serif;font-weight:530;letter-spacing:-.048em;font-size:clamp(44px,5vw,74px);line-height:.96;margin:0;max-width:1000px}.section-copy{max-width:760px;font-size:14px;line-height:1.76;opacity:.68;margin:22px 0 0}
+.cover-slide{background:var(--ink);color:var(--white)}
+.blueprint-grid{position:absolute;inset:0;opacity:.17;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:46px 46px}
+.cover-slide:before{content:'';position:absolute;right:-11vw;top:-16vh;width:62vw;height:132vh;border:1px solid rgba(255,255,255,.14);transform:rotate(18deg)}
+.cover-slide:after{content:'';position:absolute;right:8vw;top:14vh;width:27vw;height:70vh;border:28px solid rgba(63,114,92,.56);transform:skew(-11deg)}
+.cover-line{position:absolute;border:1px solid rgba(255,255,255,.11);z-index:1}.cover-line.a{right:18%;top:17%;width:16%;height:66%}.cover-line.b{right:9%;top:29%;width:35%;height:34%}
+.cover-inner{min-height:100vh;display:flex;flex-direction:column;justify-content:center}.cover-kicker{font-size:9px;letter-spacing:.18em;font-weight:800;opacity:.55;margin-bottom:28px;text-transform:uppercase}
+.cover-inner h1{font-family:'Archivo',sans-serif;font-size:clamp(76px,10.2vw,154px);line-height:.79;letter-spacing:-.072em;font-weight:560;margin:0;max-width:1020px;position:relative;z-index:2}.cover-inner h1 span{display:block;color:#78a58e;margin-left:8vw}
+.cover-meta-grid{margin-top:54px;display:grid;grid-template-columns:1.35fr .65fr;gap:48px;align-items:end;max-width:1030px}.cover-subtitle{font-family:'Archivo',sans-serif;font-size:clamp(19px,2.2vw,29px);line-height:1.22;margin:0;max-width:590px;font-weight:430}.cover-tagline{opacity:.55;margin:12px 0 0;font-size:12px}
+.live-card{padding-left:22px;border-left:1px solid rgba(255,255,255,.24);display:flex;flex-direction:column;gap:5px}.live-card span,.live-card small{font-size:9px;text-transform:uppercase;letter-spacing:.12em;opacity:.52}.live-card strong{font-family:'Archivo',sans-serif;font-size:18px;font-weight:500;color:#a8c8b8}
+.scroll-cue{margin-top:48px;display:flex;align-items:center;gap:11px;width:fit-content;background:transparent;color:#fff;border:0;padding:0;opacity:.55;font-size:10px;letter-spacing:.09em;text-transform:uppercase}.scroll-cue b{font-size:17px;font-weight:400}
+.state-layout{display:grid;grid-template-columns:.92fr 1.08fr;gap:34px;align-items:stretch}.regime-panel{background:var(--ink);color:var(--white);padding:38px;min-height:420px;position:relative;overflow:hidden}.regime-panel:after{content:'';position:absolute;width:300px;height:300px;border:1px solid rgba(255,255,255,.08);right:-90px;bottom:-115px;transform:rotate(26deg)}
+.regime-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#a7c6b6;font-weight:800}.regime-name{font-family:'Archivo',sans-serif;font-size:clamp(48px,6vw,88px);line-height:.88;letter-spacing:-.06em;font-weight:530;margin:22px 0 16px;color:#8eb9a4}.regime-date{font-size:11px;opacity:.52}.confidence-wrap{margin-top:55px;max-width:430px}.confidence-head{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.06em;text-transform:uppercase;opacity:.68}.confidence-track{height:3px;background:rgba(255,255,255,.12);margin-top:10px}.confidence-fill{height:100%;background:#8eb9a4;width:0;transition:width .55s ease}
+.factor-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);border-left:1px solid var(--line)}.factor-card{min-height:210px;padding:26px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between}.factor-card .factor-no{font-size:9px;letter-spacing:.14em;opacity:.4}.factor-card h3{font-family:'Archivo',sans-serif;font-size:22px;font-weight:520;margin:0}.factor-card .factor-value{font-family:'Archivo',sans-serif;font-size:39px;letter-spacing:-.05em;color:var(--sage);font-weight:560}.factor-card .factor-copy{font-size:10px;opacity:.5;margin-top:6px}.factor-card.negative .factor-value{color:var(--red)}
+.table-shell{border:1px solid var(--line);background:rgba(255,255,255,.34)}.table-headline{display:grid;grid-template-columns:1.1fr .9fr;border-bottom:1px solid var(--line)}.table-headline>div{padding:24px}.table-headline>div+div{border-left:1px solid var(--line)}.table-headline strong{font-family:'Archivo',sans-serif;font-size:22px;font-weight:520;display:block}.table-headline p{font-size:11px;line-height:1.55;opacity:.55;margin:6px 0 0}.signal-table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:780px}th{font-size:8px;letter-spacing:.13em;text-transform:uppercase;opacity:.45;font-weight:800;padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}td{padding:16px 14px;text-align:right;border-bottom:1px solid var(--line);font-size:11px}th:first-child,td:first-child{text-align:left}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:rgba(63,114,92,.045)}
+.asset-name strong{display:block;font-family:'Archivo',sans-serif;font-size:17px;font-weight:550}.asset-name small{display:block;font-size:9px;opacity:.45;margin-top:3px}.signal-pill{display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.signal-pill:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}.long{color:var(--sage)}.short{color:var(--red)}.neutral{color:#858984}.positive{color:var(--sage)}.negative{color:var(--red)}
+.portfolio-layout{display:grid;grid-template-columns:.72fr 1.28fr;border:1px solid rgba(255,255,255,.17);min-height:460px}.portfolio-intro{padding:34px;border-right:1px solid rgba(255,255,255,.17);position:relative}.portfolio-intro>span{font-size:9px;letter-spacing:.16em;color:#a7c6b6;text-transform:uppercase;font-weight:800}.portfolio-intro h3{font-family:'Archivo',sans-serif;font-size:43px;line-height:.96;font-weight:520;margin:22px 0 16px}.portfolio-intro p{font-size:13px;line-height:1.7;opacity:.57}.book-stats{display:grid;grid-template-columns:1fr 1fr;margin-top:52px;border-top:1px solid rgba(255,255,255,.15);border-left:1px solid rgba(255,255,255,.15)}.book-stat{padding:18px;border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)}.book-stat small{display:block;font-size:8px;letter-spacing:.12em;text-transform:uppercase;opacity:.44}.book-stat strong{font-family:'Archivo',sans-serif;font-size:24px;font-weight:500;display:block;margin-top:7px}
+.exposure-panel{padding:31px}.exposure-list{display:flex;flex-direction:column;gap:20px}.exposure-row{display:grid;grid-template-columns:58px 1fr 68px;gap:13px;align-items:center}.exposure-row .sym{font-family:'Archivo',sans-serif;font-size:14px}.exposure-track{height:4px;background:rgba(255,255,255,.1);position:relative}.exposure-track:after{content:'';position:absolute;left:50%;top:-4px;bottom:-4px;width:1px;background:rgba(255,255,255,.2)}.exposure-bar{position:absolute;top:0;height:100%}.exposure-bar.longbar{left:50%;background:#8eb9a4}.exposure-bar.shortbar{right:50%;background:#c97670}.exposure-value{text-align:right;font-size:11px;font-weight:700}
+.performance-hero{display:grid;grid-template-columns:.7fr 1.3fr;border-top:1px solid var(--line);border-left:1px solid var(--line)}.performance-lead{padding:32px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;min-height:390px}.performance-lead small{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--sage);font-weight:800}.performance-lead strong{font-family:'Archivo',sans-serif;font-size:84px;line-height:.86;font-weight:530;letter-spacing:-.065em;color:var(--sage)}.performance-lead p{font-size:12px;line-height:1.7;opacity:.55;max-width:330px}.performance-grid{display:grid;grid-template-columns:repeat(3,1fr)}.perf-card{padding:27px 23px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:195px}.perf-card small{font-size:8px;letter-spacing:.13em;text-transform:uppercase;opacity:.45}.perf-card strong{font-family:'Archivo',sans-serif;font-size:30px;font-weight:520;display:block;margin-top:42px}.perf-card span{font-size:9px;opacity:.43;display:block;margin-top:7px}
+.benchmark-band{margin-top:28px;display:grid;grid-template-columns:1.2fr repeat(3,.6fr);border:1px solid var(--line);background:rgba(255,255,255,.38)}.benchmark-band>div{padding:18px;border-right:1px solid var(--line)}.benchmark-band>div:last-child{border-right:0}.benchmark-band small{font-size:8px;letter-spacing:.12em;text-transform:uppercase;opacity:.45}.benchmark-band strong{font-family:'Archivo',sans-serif;font-size:18px;font-weight:520;display:block;margin-top:5px}
+.memo-layout{display:grid;grid-template-columns:.65fr 1.35fr;gap:0;border:1px solid rgba(255,255,255,.17)}.memo-side{padding:34px;border-right:1px solid rgba(255,255,255,.17);display:flex;flex-direction:column;justify-content:space-between}.memo-side .giant{font-family:'Archivo',sans-serif;font-size:105px;line-height:.8;letter-spacing:-.07em;color:#9bc2ae}.memo-side h3{font-family:'Archivo',sans-serif;font-size:30px;line-height:1.02;font-weight:510;margin:18px 0}.memo-side p{font-size:12px;line-height:1.7;opacity:.57}.memo-body{padding:34px;min-height:500px}.memo{white-space:pre-wrap;margin:0;color:rgba(255,255,255,.78);font:500 11px/1.9 'Manrope',sans-serif}.memo-note{margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:9px;line-height:1.65;opacity:.5}
+.close-slide{text-align:left}.close-grid{position:absolute;inset:0;opacity:.17;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:46px 46px}.close-inner{min-height:100vh;display:flex;flex-direction:column;justify-content:center}.close-inner h2{font-family:'Archivo',sans-serif;font-size:clamp(64px,9vw,132px);line-height:.82;letter-spacing:-.07em;font-weight:550;margin:0;max-width:1030px}.close-inner h2 span{display:block;color:#7fae96;margin-left:7vw}.close-copy{font-size:14px;line-height:1.7;opacity:.57;max-width:610px;margin:40px 0 0}.close-meta{display:flex;gap:34px;flex-wrap:wrap;margin-top:38px;font-size:9px;text-transform:uppercase;letter-spacing:.12em;opacity:.48}.footer-note{position:absolute;bottom:28px;left:0;right:0;width:min(1240px,calc(100% - 96px));margin:auto;display:flex;justify-content:space-between;gap:20px;font-size:8px;text-transform:uppercase;letter-spacing:.12em;opacity:.35}
+.loading{min-height:260px;display:grid;place-items:center;border:1px solid var(--line);font-size:10px;text-transform:uppercase;letter-spacing:.12em;opacity:.55}.error{border:1px solid rgba(166,83,76,.4);background:rgba(166,83,76,.09);padding:18px;color:#7d302c;font-size:12px;line-height:1.6}.mobile-menu{display:none}
+@media(max-width:1000px){.state-layout,.portfolio-layout,.performance-hero,.memo-layout{grid-template-columns:1fr}.regime-panel,.portfolio-intro,.memo-side{border-right:0;border-bottom:1px solid var(--line-dark)}.performance-grid{grid-template-columns:repeat(2,1fr)}.benchmark-band{grid-template-columns:1fr 1fr}.benchmark-band>div:nth-child(2){border-right:0}.benchmark-band>div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media(max-width:760px){.topbar{grid-template-columns:1fr auto;height:58px;padding:0 14px}.nav-links{display:none}.brand-mark{font-size:9px}.live-dot{display:none}.mobile-menu{display:grid}.slide-inner{width:min(100% - 32px,1240px);padding:86px 0 60px}.cover-inner{min-height:100vh}.cover-inner h1{font-size:clamp(62px,20vw,104px)}.cover-meta-grid{grid-template-columns:1fr;gap:28px}.live-card{padding-left:0;padding-top:17px;border-left:0;border-top:1px solid rgba(255,255,255,.22)}.section-heading{margin-bottom:30px}.section-heading h2{font-size:clamp(39px,12vw,62px)}.factor-grid{grid-template-columns:1fr}.table-headline{grid-template-columns:1fr}.table-headline>div+div{border-left:0;border-top:1px solid var(--line)}.performance-grid{grid-template-columns:1fr 1fr}.benchmark-band{grid-template-columns:1fr 1fr}.memo-side .giant{font-size:80px}.footer-note{width:calc(100% - 32px)}}
+@media(max-width:480px){.top-actions .icon-action{display:none}.cover-inner h1{font-size:58px}.performance-grid,.benchmark-band{grid-template-columns:1fr}.benchmark-band>div{border-right:0!important;border-bottom:1px solid var(--line)}.exposure-row{grid-template-columns:45px 1fr 58px}.regime-panel,.portfolio-intro,.exposure-panel,.memo-side,.memo-body{padding:25px}.performance-lead strong{font-size:68px}.factor-card{min-height:175px}.close-inner h2{font-size:58px}}
 </style>
 </head>
 <body>
-<div class="shell">
-  <header class="topbar">
-    <div class="brand-wrap">
-      <div class="mark">GM</div>
-      <div>
-        <div class="brand">AI Global Macro Hedge Fund Engine</div>
-        <div class="brand-sub">Systematic Research Platform</div>
-      </div>
-    </div>
-    <nav class="nav">
-      <a href="/docs">API</a>
-      <a href="/memo">Memo</a>
-      <button class="refresh" id="refreshBtn" type="button">Refresh</button>
-      <div class="status-pill"><span class="status-dot"></span>System live</div>
-    </nav>
-  </header>
+<div class="presentation-shell">
+<header class="topbar">
+  <button class="brand-mark" onclick="goTo('cover')"><span class="brand-block"></span><span>Global Macro Engine</span></button>
+  <nav class="nav-links" aria-label="Presentation sections">
+    <button data-section="cover" onclick="goTo('cover')" class="active">Cover</button>
+    <button data-section="state" onclick="goTo('state')">Macro State</button>
+    <button data-section="signals" onclick="goTo('signals')">Signals</button>
+    <button data-section="portfolio" onclick="goTo('portfolio')">Portfolio</button>
+    <button data-section="performance" onclick="goTo('performance')">Performance</button>
+    <button data-section="memo-section" onclick="goTo('memo-section')">IC Memo</button>
+    <button data-section="close" onclick="goTo('close')">Close</button>
+  </nav>
+  <div class="top-actions">
+    <a class="icon-action" href="/docs" title="API">API</a>
+    <button class="icon-action" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+    <button class="refresh-action" id="refreshBtn" onclick="loadData(true)">Refresh</button>
+    <div class="live-dot"><i></i>Live</div>
+  </div>
+</header>
 
-  <section class="hero">
-    <div class="hero-main">
-      <div class="kicker">Global cross-asset intelligence</div>
-      <h1>Macro regime to portfolio, systematically.</h1>
-      <div class="hero-copy">A transparent research engine translating economic regimes, momentum, liquidity and volatility into risk-controlled cross-asset positioning.</div>
-      <div class="hero-meta">
-        <span>Universe <strong>8 liquid macro proxies</strong></span>
-        <span>Target vol <strong>10%</strong></span>
-        <span>Max gross <strong>150%</strong></span>
-      </div>
+<main>
+<section id="cover" class="slide cover-slide">
+  <div class="blueprint-grid"></div><div class="cover-line a"></div><div class="cover-line b"></div>
+  <div class="slide-inner cover-inner">
+    <div class="cover-kicker">Systematic cross-asset research platform</div>
+    <h1>GLOBAL<span>MACRO</span></h1>
+    <div class="cover-meta-grid">
+      <div><p class="cover-subtitle">From economic regime to signal, risk and portfolio.</p><p class="cover-tagline">A systematic research engine for cross-asset macro positioning.</p></div>
+      <div class="live-card"><span>Current state</span><strong id="coverRegime">Loading</strong><small id="coverDate">Fetching live market data</small></div>
     </div>
-    <aside class="regime-card">
-      <div>
-        <div class="label">Current macro regime</div>
-        <div id="regime" class="regime">Loading</div>
-        <div id="regimeDate" class="regime-date">Fetching macro state...</div>
-      </div>
-      <div class="confidence">
-        <div class="conf-head"><span>Cluster confidence</span><strong id="confidenceText">0.0%</strong></div>
-        <div class="track"><div id="confidenceBar" class="fill" style="width:0%"></div></div>
-      </div>
-    </aside>
-  </section>
+    <button class="scroll-cue" onclick="goTo('state')"><span>Enter engine</span><b>↓</b></button>
+  </div>
+</section>
 
-  <main id="content">
-    <div class="loading">
-      INITIALIZING MARKET + MACRO DATA
-      <div class="loading-line"></div>
-      <div class="loading-line" style="width:72%"></div>
-    </div>
-  </main>
+<section id="state" class="slide light-slide"><div class="slide-inner">
+  <div class="section-heading"><div class="eyebrow">01 · Macro State</div><h2>One regime. Four dimensions.</h2><p class="section-copy">The engine compresses growth, inflation, liquidity and market risk into a single interpretable macro state, then measures how confidently the current environment belongs to that regime.</p></div>
+  <div id="stateContent" class="loading">Loading macro state</div>
+</div></section>
 
-  <footer class="footer">
-    <span>AI Global Macro Hedge Fund Engine · Research use only</span>
-    <span>FRED macro data · Yahoo market data</span>
-  </footer>
+<section id="signals" class="slide stone-slide"><div class="slide-inner">
+  <div class="section-heading"><div class="eyebrow">02 · Signal Book</div><h2>Conviction is earned across multiple signals.</h2><p class="section-copy">Regime alignment is combined with short and medium-term momentum, trend and liquidity. The result is a directional view, not a prediction.</p></div>
+  <div id="signalsContent" class="loading">Loading cross-asset signal book</div>
+</div></section>
+
+<section id="portfolio" class="slide dark-slide"><div class="slide-inner">
+  <div class="section-heading"><div class="eyebrow eyebrow-dark">03 · Portfolio Construction</div><h2>Views become positions only after risk control.</h2><p class="section-copy">The signal book is converted into volatility-scaled long and short exposures, constrained by gross exposure, net exposure and single-position limits.</p></div>
+  <div id="portfolioContent" class="loading" style="border-color:rgba(255,255,255,.17);color:#fff">Loading portfolio</div>
+</div></section>
+
+<section id="performance" class="slide light-slide"><div class="slide-inner">
+  <div class="section-heading"><div class="eyebrow">04 · Performance</div><h2>The strategy must survive comparison.</h2><p class="section-copy">Walk-forward research performance is shown beside a simple 60/40 reference portfolio. The objective is not to hide weak periods, but to make the evidence visible.</p></div>
+  <div id="performanceContent" class="loading">Loading backtest evidence</div>
+</div></section>
+
+<section id="memo-section" class="slide sage-slide"><div class="slide-inner">
+  <div class="section-heading"><div class="eyebrow eyebrow-dark">05 · Investment Committee</div><h2>Turn the model into an investment thesis.</h2><p class="section-copy">The current regime, signal evidence and portfolio are translated into a concise machine-generated IC brief with risk interpretation and thesis invalidation.</p></div>
+  <div id="memoContent" class="loading" style="border-color:rgba(255,255,255,.2);color:#fff">Building IC memo</div>
+</div></section>
+
+<section id="close" class="slide dark-slide close-slide">
+  <div class="close-grid"></div>
+  <div class="slide-inner close-inner">
+    <div class="eyebrow eyebrow-dark">Systematic Macro Research</div>
+    <h2>REGIME TO<span>PORTFOLIO.</span></h2>
+    <p class="close-copy">The engine is designed as a transparent research system: economic state, market evidence, portfolio construction and backtest results remain visible at every stage.</p>
+    <div class="close-meta"><span>FRED macro data</span><span>Yahoo market data</span><span>10% target volatility</span><span>Research use only</span></div>
+  </div>
+  <div class="footer-note"><span>AI Global Macro Hedge Fund Engine</span><span>Research platform · Not investment advice</span></div>
+</section>
+</main>
 </div>
 <script>
+const sectionIds=['cover','state','signals','portfolio','performance','memo-section','close'];
+let activeIndex=0;
 const $=id=>document.getElementById(id);
 const pct=x=>(100*Number(x||0)).toFixed(1)+'%';
 const num=(x,d=2)=>Number(x||0).toFixed(d);
-const sign=x=>Number(x)>=0?'+':'';
-const signed=x=>sign(x)+num(x,2);
+const signed=x=>(Number(x)>=0?'+':'')+num(x,2);
 const cls=x=>Number(x)>0?'positive':Number(x)<0?'negative':'';
 const esc=s=>String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
-const widthFor=x=>Math.min(50,Math.abs(Number(x||0))*125);
-const pulse=(x)=>{
-  const v=Math.max(-2.5,Math.min(2.5,Number(x||0)));
-  const w=Math.abs(v)/2.5*50;
-  const left=v>=0?50:50-w;
-  const color=v>=0?'var(--green)':'var(--red)';
-  return `<div class="pulse"><span style="left:${left}%;width:${w}%;background:${color}"></span></div>`;
-};
-const factorCard=(name,value,caption)=>`<div class="metric-card"><div class="metric-head"><div class="label">${name}</div><span class="metric-dot"></span></div><div class="metric-value ${cls(value)}">${signed(value)}</div><div class="metric-caption">${caption}</div>${pulse(value)}</div>`;
-const perfCard=(label,value,kind='num')=>`<div class="perf-card"><div class="label">${label}</div><div class="v">${kind==='pct'?pct(value):num(value,kind==='num'?2:3)}</div></div>`;
-
-async function load(force=false){
-  const btn=$('refreshBtn');
-  if(btn){btn.disabled=true;btn.textContent='Loading';}
+function goTo(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});}
+function step(delta){activeIndex=Math.max(0,Math.min(sectionIds.length-1,activeIndex+delta));goTo(sectionIds[activeIndex]);}
+async function toggleFullscreen(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen();}catch(e){}}
+const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting&&entry.intersectionRatio>=.45){activeIndex=sectionIds.indexOf(entry.target.id);document.querySelectorAll('.nav-links button').forEach(b=>b.classList.toggle('active',b.dataset.section===entry.target.id));}})},{threshold:[.45,.6,.75]});
+sectionIds.forEach(id=>{const el=$(id);if(el)observer.observe(el)});
+window.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName))return;if(['ArrowRight','PageDown'].includes(e.key)){e.preventDefault();step(1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();step(-1)}});
+function factorCard(no,title,value,copy){return `<div class="factor-card ${Number(value)<0?'negative':''}"><span class="factor-no">0${no}</span><div><h3>${title}</h3><div class="factor-value">${signed(value)}</div><div class="factor-copy">${copy}</div></div></div>`}
+function exposureWidth(v){return Math.min(50,Math.abs(Number(v||0))*125)}
+async function loadData(force=false){
+  const btn=$('refreshBtn');if(btn){btn.disabled=true;btn.textContent='Loading'}
   try{
-    const r=await fetch('/snapshot'+(force?'?refresh=true':''));
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    const rg=d.regime||{};
-    const confidence=rg.confidence==null?0:Number(rg.confidence);
-    $('regime').textContent=String(rg.regime||'Unknown').toUpperCase();
-    $('regimeDate').textContent='As of '+d.as_of;
-    $('confidenceText').textContent=rg.confidence==null?'N/A':pct(confidence);
-    $('confidenceBar').style.width=Math.max(0,Math.min(100,confidence*100))+'%';
-
-    const rows=(d.signals||[]).map(x=>{
-      const dir=String(x.direction||'Neutral');
-      const dclass=dir.toLowerCase();
-      return `<tr>
-        <td><div class="asset-cell"><div class="asset-icon">${esc(x.symbol).slice(0,3)}</div><div><div class="asset-symbol">${esc(x.symbol)}</div><div class="asset-name">${esc(x.asset)}</div></div></div></td>
-        <td><span class="view ${dclass}">${esc(dir)}</span></td>
-        <td class="${cls(x.score)}">${signed(x.score)}</td>
-        <td class="${cls(x.momentum_3m)}">${pct(x.momentum_3m)}</td>
-        <td class="${cls(x.momentum_12m)}">${pct(x.momentum_12m)}</td>
-        <td class="${cls(x.weight)}"><strong>${pct(x.weight)}</strong></td>
-      </tr>`;
-    }).join('');
-
-    const exposures=Object.entries((d.portfolio||{}).weights||{}).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).map(([k,v])=>{
-      const val=Number(v||0), w=widthFor(val);
-      const bar=val>=0
-        ?`<span class="exposure-bar longbar" style="width:${w}%"></span>`
-        :`<span class="exposure-bar shortbar" style="width:${w}%"></span>`;
-      return `<div class="exposure-row"><div class="exposure-symbol">${esc(k)}</div><div class="exposure-track">${bar}</div><div class="exposure-value ${cls(val)}">${pct(val)}</div></div>`;
-    }).join('');
-
-    const bt=(d.backtest||{}).strategy||{};
-    const bm=(d.backtest||{}).benchmark_60_40||{};
-    const months=(d.backtest||{}).months||0;
-    const notes=d.data_notes||{};
-
-    $('content').innerHTML=`
-      <section class="metrics">
-        ${factorCard('Growth',rg.growth,'Economic activity impulse')}
-        ${factorCard('Inflation',rg.inflation,'Price pressure impulse')}
-        ${factorCard('Liquidity',rg.liquidity,'Policy + financial conditions')}
-        ${factorCard('Risk',rg.risk,'Cross-market stress state')}
-      </section>
-
-      <section class="dashboard-grid">
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Cross-Asset Signal Book</div><div class="panel-sub">Regime, trend and liquidity translated into directional conviction.</div></div><div class="panel-tag">${(d.signals||[]).length} instruments</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Instrument</th><th>View</th><th>Score</th><th>3M</th><th>12M</th><th>Weight</th></tr></thead><tbody>${rows}</tbody></table></div>
-        </div>
-
-        <aside class="panel">
-          <div class="panel-head"><div><div class="panel-title">Portfolio Exposure</div><div class="panel-sub">Current volatility-scaled allocation.</div></div><div class="panel-tag">Target book</div></div>
-          <div class="exposure-list">${exposures}</div>
-          <div class="exposure-summary">
-            <div class="mini-stat"><div class="label">Gross</div><div class="v">${pct(d.portfolio.gross_exposure)}</div></div>
-            <div class="mini-stat"><div class="label">Net</div><div class="v ${cls(d.portfolio.net_exposure)}">${pct(d.portfolio.net_exposure)}</div></div>
-          </div>
-        </aside>
-      </section>
-
-      <section class="performance">
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Strategy Performance</div><div class="panel-sub">Walk-forward research backtest after transaction costs.</div></div><div class="panel-tag">${months} months</div></div>
-          <div class="performance-grid">
-            ${perfCard('CAGR',bt.cagr,'pct')}
-            ${perfCard('Sharpe',bt.sharpe)}
-            ${perfCard('Sortino',bt.sortino)}
-            ${perfCard('Max drawdown',bt.max_drawdown,'pct')}
-            ${perfCard('Volatility',bt.annual_volatility,'pct')}
-            ${perfCard('Calmar',bt.calmar)}
-            ${perfCard('Positive months',bt.positive_months,'pct')}
-            ${perfCard('Growth of $1',bt.ending_growth_of_1)}
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Benchmark Monitor</div><div class="panel-sub">Strategy compared with a 60/40 reference portfolio.</div></div><div class="panel-tag">Relative view</div></div>
-          <div class="benchmark-row"><div class="name">Metric</div><div class="label" style="text-align:right">Strategy</div><div class="label" style="text-align:right">60/40</div></div>
-          <div class="benchmark-row"><div class="name">CAGR</div><div class="num">${pct(bt.cagr)}</div><div class="num">${pct(bm.cagr)}</div></div>
-          <div class="benchmark-row"><div class="name">Sharpe</div><div class="num">${num(bt.sharpe)}</div><div class="num">${num(bm.sharpe)}</div></div>
-          <div class="benchmark-row"><div class="name">Sortino</div><div class="num">${num(bt.sortino)}</div><div class="num">${num(bm.sortino)}</div></div>
-          <div class="benchmark-row"><div class="name">Max drawdown</div><div class="num">${pct(bt.max_drawdown)}</div><div class="num">${pct(bm.max_drawdown)}</div></div>
-          <div class="benchmark-row"><div class="name">Annual volatility</div><div class="num">${pct(bt.annual_volatility)}</div><div class="num">${pct(bm.annual_volatility)}</div></div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head"><div><div class="panel-title">Investment Committee Memo</div><div class="panel-sub">Machine-generated rationale from the current regime and portfolio state.</div></div><div class="panel-tag">IC brief</div></div>
-        <pre class="memo">${esc(d.memo)}</pre>
-        <div class="data-note"><span>●</span><span>${esc(notes.revised_data_warning||'Research output. Validate all signals independently before investment use.')}</span></div>
-      </section>`;
-  }catch(e){
-    $('content').innerHTML=`<div class="error"><strong>Data engine unavailable.</strong><br>${esc(e.message)}<br><br>Check external provider connectivity or API logs.</div>`;
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='Refresh';}
-  }
+    const r=await fetch('/snapshot'+(force?'?refresh=true':''));if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();
+    const rg=d.regime||{},bt=d.backtest?.strategy||{},bm=d.backtest?.benchmark_60_40||{},portfolio=d.portfolio||{};
+    $('coverRegime').textContent=String(rg.regime||'Unknown').toUpperCase();$('coverDate').textContent='As of '+d.as_of+' · '+(rg.confidence==null?'N/A':pct(rg.confidence))+' confidence';
+    $('stateContent').className='state-layout';$('stateContent').innerHTML=`<div class="regime-panel"><div><div class="regime-label">Current macro regime</div><div class="regime-name">${esc(String(rg.regime||'Unknown').toUpperCase())}</div><div class="regime-date">As of ${esc(d.as_of)}</div></div><div class="confidence-wrap"><div class="confidence-head"><span>Cluster confidence</span><strong>${rg.confidence==null?'N/A':pct(rg.confidence)}</strong></div><div class="confidence-track"><div class="confidence-fill" style="width:${Math.max(0,Math.min(100,Number(rg.confidence||0)*100))}%"></div></div></div></div><div class="factor-grid">${factorCard(1,'Growth',rg.growth,'Economic activity impulse')}${factorCard(2,'Inflation',rg.inflation,'Price pressure impulse')}${factorCard(3,'Liquidity',rg.liquidity,'Policy and financial conditions')}${factorCard(4,'Risk',rg.risk,'Cross-market stress state')}</div>`;
+    const rows=(d.signals||[]).map(x=>`<tr><td><div class="asset-name"><strong>${esc(x.symbol)}</strong><small>${esc(x.asset)}</small></div></td><td><span class="signal-pill ${String(x.direction||'neutral').toLowerCase()}">${esc(x.direction)}</span></td><td class="${cls(x.score)}">${signed(x.score)}</td><td class="${cls(x.momentum_3m)}">${pct(x.momentum_3m)}</td><td class="${cls(x.momentum_12m)}">${pct(x.momentum_12m)}</td><td class="${cls(x.weight)}"><strong>${pct(x.weight)}</strong></td></tr>`).join('');
+    $('signalsContent').className='table-shell';$('signalsContent').innerHTML=`<div class="table-headline"><div><strong>Cross-Asset Signal Book</strong><p>${(d.signals||[]).length} liquid macro instruments ranked by current conviction.</p></div><div><strong>Regime + Momentum + Liquidity</strong><p>Neutral signals remain unallocated. Long and short views pass through portfolio risk controls before becoming positions.</p></div></div><div class="signal-table-wrap"><table><thead><tr><th>Instrument</th><th>View</th><th>Score</th><th>3M Momentum</th><th>12M Momentum</th><th>Weight</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    const exposures=Object.entries(portfolio.weights||{}).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).map(([k,v])=>{const w=exposureWidth(v);const bar=Number(v)>=0?`<span class="exposure-bar longbar" style="width:${w}%"></span>`:`<span class="exposure-bar shortbar" style="width:${w}%"></span>`;return `<div class="exposure-row"><span class="sym">${esc(k)}</span><div class="exposure-track">${bar}</div><span class="exposure-value ${cls(v)}">${pct(v)}</span></div>`}).join('');
+    $('portfolioContent').className='portfolio-layout';$('portfolioContent').innerHTML=`<div class="portfolio-intro"><div><span>Target book</span><h3>Risk before return.</h3><p>The engine scales conviction by realized volatility, then applies portfolio-level exposure constraints. Neutral signals remain at zero weight.</p></div><div class="book-stats"><div class="book-stat"><small>Gross exposure</small><strong>${pct(portfolio.gross_exposure)}</strong></div><div class="book-stat"><small>Net exposure</small><strong>${pct(portfolio.net_exposure)}</strong></div><div class="book-stat"><small>Long book</small><strong>${pct(portfolio.long_exposure)}</strong></div><div class="book-stat"><small>Short book</small><strong>${pct(portfolio.short_exposure)}</strong></div></div></div><div class="exposure-panel"><div class="exposure-list">${exposures}</div></div>`;
+    $('performanceContent').className='';$('performanceContent').innerHTML=`<div class="performance-hero"><div class="performance-lead"><small>Strategy Sharpe</small><strong>${num(bt.sharpe)}</strong><p>${d.backtest?.months||0} months of walk-forward research performance after transaction costs.</p></div><div class="performance-grid"><div class="perf-card"><small>CAGR</small><strong>${pct(bt.cagr)}</strong><span>Annualized return</span></div><div class="perf-card"><small>Sortino</small><strong>${num(bt.sortino)}</strong><span>Downside-adjusted return</span></div><div class="perf-card"><small>Max drawdown</small><strong>${pct(bt.max_drawdown)}</strong><span>Peak-to-trough decline</span></div><div class="perf-card"><small>Annual volatility</small><strong>${pct(bt.annual_volatility)}</strong><span>Realized volatility</span></div><div class="perf-card"><small>Calmar</small><strong>${num(bt.calmar)}</strong><span>Return vs drawdown</span></div><div class="perf-card"><small>Positive months</small><strong>${pct(bt.positive_months)}</strong><span>Monthly hit rate</span></div></div></div><div class="benchmark-band"><div><small>60/40 reference</small><strong>Strategy vs benchmark</strong></div><div><small>CAGR</small><strong>${pct(bt.cagr)} / ${pct(bm.cagr)}</strong></div><div><small>Sharpe</small><strong>${num(bt.sharpe)} / ${num(bm.sharpe)}</strong></div><div><small>Max DD</small><strong>${pct(bt.max_drawdown)} / ${pct(bm.max_drawdown)}</strong></div></div>`;
+    $('memoContent').className='memo-layout';$('memoContent').innerHTML=`<div class="memo-side"><div><div class="giant">IC</div><h3>Current investment thesis</h3><p>A concise interpretation of the model state, highest-conviction positions and the conditions that would invalidate the thesis.</p></div><a href="/memo" style="font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#b8d1c4;text-decoration:none">Open plain-text memo →</a></div><div class="memo-body"><pre class="memo">${esc(d.memo)}</pre><div class="memo-note">${esc(d.data_notes?.revised_data_warning||'Research output. Validate signals independently before investment use.')}</div></div>`;
+  }catch(e){['stateContent','signalsContent','portfolioContent','performanceContent','memoContent'].forEach(id=>{const el=$(id);if(el){el.className='error';el.innerHTML='<strong>Data engine unavailable.</strong><br>'+esc(e.message)}})}finally{if(btn){btn.disabled=false;btn.textContent='Refresh'}}
 }
-$('refreshBtn').addEventListener('click',()=>load(true));
-load(false);
+loadData(false);
 </script>
 </body>
 </html>'''
