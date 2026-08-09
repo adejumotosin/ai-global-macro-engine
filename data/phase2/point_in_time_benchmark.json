@@ -7,6 +7,10 @@
     "missing": [],
     "complete": true
   },
+  "period": {
+    "start": "2011-05-31",
+    "end": "2026-07-31"
+  },
   "months_available": 183,
   "baseline_v1_point_in_time": {
     "cagr": 0.055,
@@ -64,5 +68,9 @@
   },
   "production_action": "retain_v1",
   "market_provider_errors": {},
-  "interpretation": "A challenger is eligible only if it clears every predeclared gate on point-in-time data. Failure to clear the gates keeps production on V1 regardless of revised-data performance."
+  "notes": [
+    "The ALFRED panel achieved 183/183 requested month-end observations with zero missing dates after rate-limit-aware retry handling was added.",
+    "Signals at month-end t are applied to the next monthly return t+1.",
+    "The carry-balanced challenger improves V1 on CAGR, Sharpe, Sortino, positive-month rate and turnover, but does not beat the 60/40 benchmark Sharpe and is therefore not eligible for production promotion."
+  ]
 }
