@@ -1,0 +1,26 @@
+{
+  "status": "partial",
+  "mode": "ALFRED point-in-time core macro series plus decision-date-truncated market/rates series",
+  "revision_sensitive_series": [
+    "cpi",
+    "industrial_production",
+    "unemployment",
+    "financial_conditions",
+    "fed_funds"
+  ],
+  "coverage": {
+    "required": 3,
+    "available": 2,
+    "missing": [
+      "2024-03-31"
+    ],
+    "complete": false
+  },
+  "errors": [
+    {
+      "decision_date": "2024-03-31",
+      "error": "No feature row produced for 2024-03-31"
+    }
+  ],
+  "note": "Each decision row is rebuilt using ALFRED values available on that month-end for revision-sensitive series. Vintage observation dates are preserved with an outer join; no future observations are introduced."
+}

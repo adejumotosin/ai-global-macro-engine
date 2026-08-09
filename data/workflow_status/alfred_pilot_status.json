@@ -1,7 +1,7 @@
 {
-  "status": "missing_fred_api_key",
-  "credential_configured": false,
-  "pilot_outcome": "skipped",
-  "recorded_at": "2026-08-09T18:53:08.428254+00:00",
+  "status": "success",
+  "credential_configured": true,
+  "pilot_outcome": "success",
+  "recorded_at": "2026-08-09T19:03:58.532998+00:00",
   "secret_value_recorded": false
 }
